@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+type App struct {}
+
 var tpl *template.Template
 
 func init() {
@@ -13,12 +15,13 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/", IndexPage)
+	app := App{}
+	http.HandleFunc("/", app.IndexPage)
 	log.Println("Table tennis DB crawler started...")
 	http.ListenAndServe(":8080", nil)
 }
 
-func IndexPage(w http.ResponseWriter, req *http.Request) {
+func (a App) IndexPage(w http.ResponseWriter, req *http.Request) {
 	err := tpl.ExecuteTemplate(w, "index.html", nil)
 	if err != nil {
 		log.Fatalln(err)
