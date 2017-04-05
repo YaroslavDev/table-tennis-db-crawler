@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 	"log"
-	"github.com/table-tennis-db-crawler-master/web"
+	"github.com/table-tennis-db-crawler/web"
 )
 
 func main() {
