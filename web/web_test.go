@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"testing"
@@ -12,12 +12,13 @@ func TestIndexPage(t *testing.T) {
 		t.Fatal(err)
 	}
 	responseWriter := httptest.NewRecorder()
-	app := App{}
+	app := NewAppController("../templates")
 
 	app.IndexPage(responseWriter, request)
 
 	response := responseWriter.Result()
-	if response.StatusCode != 200 {
-		t.Fatalf("Received %s but expected 200\n", response.StatusCode)
+	expectedStatusCode := 200
+	if response.StatusCode != expectedStatusCode {
+		t.Fatalf("Received %d but expected %d\n", response.StatusCode, expectedStatusCode)
 	}
 }
