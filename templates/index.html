@@ -2,5 +2,18 @@
 <head>
     <title>Welcome to Table Tennis DB crawler!</title>
 </head>
+
 <h1>List of known table tennis equipment</h1>
+
+<h2>Rubbers</h2>
+<ul>
+{{range .}}
+    <li>
+        <strong>{{.Name}}</strong>
+        Speed: {{.Speed}}
+        Spin: {{.Spin}}
+    </li>
+{{end}}
+</ul>
+
 </html>
