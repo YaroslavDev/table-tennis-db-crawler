@@ -4,6 +4,7 @@ import (
 	"testing"
 	"net/http"
 	"net/http/httptest"
+	"github.com/YaroslavDev/table-tennis-db-crawler/model"
 )
 
 func TestIndexPage(t *testing.T) {
@@ -13,6 +14,7 @@ func TestIndexPage(t *testing.T) {
 	}
 	responseWriter := httptest.NewRecorder()
 	app := NewAppController("../templates")
+	app.RubberFetchingService = FetchingServiceMock{}
 
 	app.IndexPage(responseWriter, request)
 
@@ -21,4 +23,14 @@ func TestIndexPage(t *testing.T) {
 	if response.StatusCode != expectedStatusCode {
 		t.Fatalf("Received %d but expected %d\n", response.StatusCode, expectedStatusCode)
 	}
+}
+
+type FetchingServiceMock struct {}
+
+func (service FetchingServiceMock) FetchRubbers() ([]model.Rubber, error) {
+	rubbers := []model.Rubber{
+		{Name: "Donic Acuda S2", Speed: 8.8},
+		{Name: "Butterfly Tenergy 05", Speed: 9.5},
+	}
+	return rubbers, nil
 }

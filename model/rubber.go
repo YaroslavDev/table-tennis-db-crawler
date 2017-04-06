@@ -1,6 +1,7 @@
 package model
 
 type Rubber struct {
+	Name		string
 	Speed 		float32
 	Spin 		float32
 	Control 	float32
