@@ -1,25 +1,24 @@
-package web
+package rubber
 
 import (
 	"html/template"
 	"net/http"
 	"log"
 	"path/filepath"
-	"github.com/YaroslavDev/table-tennis-db-crawler/services"
 )
 
-type AppController struct {
+type RubberController struct {
 	template              *template.Template
-	RubberFetchingService services.RubberFetchingService
+	RubberFetchingService RubberFetchingService
 }
 
-func NewAppController(templateBasePath string) *AppController {
+func NewAppController(templateBasePath string) *RubberController {
 	templatesPath := filepath.Join(templateBasePath, "*.html")
 	tpl := template.Must(template.ParseGlob(templatesPath))
-	return &AppController{template: tpl}
+	return &RubberController{template: tpl}
 }
 
-func (a AppController) IndexPage(w http.ResponseWriter, req *http.Request) {
+func (a RubberController) IndexPage(w http.ResponseWriter, req *http.Request) {
 	rubbers, err := a.rubberFetchingService().FetchRubbers()
 	if err != nil {
 		log.Fatalln(err)
@@ -30,9 +29,9 @@ func (a AppController) IndexPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (a AppController) rubberFetchingService() services.RubberFetchingService {
+func (a RubberController) rubberFetchingService() RubberFetchingService {
 	if a.RubberFetchingService == nil {
-		a.RubberFetchingService = services.TTDBRubberFetchingService{}
+		a.RubberFetchingService = TTDBRubberFetchingService{}
 	}
 	return a.RubberFetchingService
 }

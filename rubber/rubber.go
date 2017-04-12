@@ -1,4 +1,4 @@
-package model
+package rubber
 
 type Rubber struct {
 	Name		string
