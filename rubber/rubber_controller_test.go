@@ -1,10 +1,9 @@
-package web
+package rubber
 
 import (
 	"testing"
 	"net/http"
 	"net/http/httptest"
-	"github.com/YaroslavDev/table-tennis-db-crawler/model"
 )
 
 func TestIndexPage(t *testing.T) {
@@ -27,8 +26,8 @@ func TestIndexPage(t *testing.T) {
 
 type FetchingServiceMock struct {}
 
-func (service FetchingServiceMock) FetchRubbers() ([]model.Rubber, error) {
-	rubbers := []model.Rubber{
+func (service FetchingServiceMock) FetchRubbers() ([]*Rubber, error) {
+	rubbers := []*Rubber{
 		{Name: "Donic Acuda S2", Speed: 8.8},
 		{Name: "Butterfly Tenergy 05", Speed: 9.5},
 	}
