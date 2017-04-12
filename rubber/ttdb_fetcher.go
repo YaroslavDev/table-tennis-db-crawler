@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-type TTDBRubberFetchingService struct{}
+type TTDBRubberFetcher struct{}
 
 const NUM_WORKERS = 30
 
-func (service TTDBRubberFetchingService) FetchRubbers() ([]*Rubber, error) {
+func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
 	doc, err := goquery.NewDocument("http://www.tabletennisdb.com/rubber")
 	if err != nil {
 		return nil, err

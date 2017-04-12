@@ -1,6 +1,6 @@
 package rubber
 
-type RubberFetchingService interface {
+type RubberFetcher interface {
 	FetchRubbers() ([]*Rubber, error)
 }
 

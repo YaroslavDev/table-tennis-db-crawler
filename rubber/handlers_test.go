@@ -4,6 +4,7 @@ import (
 	"testing"
 	"net/http"
 	"net/http/httptest"
+	"html/template"
 )
 
 func TestIndexPage(t *testing.T) {
@@ -12,10 +13,10 @@ func TestIndexPage(t *testing.T) {
 		t.Fatal(err)
 	}
 	responseWriter := httptest.NewRecorder()
-	app := NewAppController("../templates")
-	app.RubberFetchingService = FetchingServiceMock{}
+	rubberController := NewRubberController(template.Must(template.ParseGlob("../templates/*.html")))
+	rubberController.fetcher = FetcherStub{}
 
-	app.IndexPage(responseWriter, request)
+	rubberController.IndexPage(responseWriter, request)
 
 	response := responseWriter.Result()
 	expectedStatusCode := 200
@@ -24,9 +25,9 @@ func TestIndexPage(t *testing.T) {
 	}
 }
 
-type FetchingServiceMock struct {}
+type FetcherStub struct {}
 
-func (service FetchingServiceMock) FetchRubbers() ([]*Rubber, error) {
+func (service FetcherStub) FetchRubbers() ([]*Rubber, error) {
 	rubbers := []*Rubber{
 		{Name: "Donic Acuda S2", Speed: 8.8},
 		{Name: "Butterfly Tenergy 05", Speed: 9.5},
