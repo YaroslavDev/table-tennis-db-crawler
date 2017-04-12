@@ -12,7 +12,7 @@ type RubberController struct {
 }
 
 func NewRubberController(template *template.Template) *RubberController {
-	return &RubberController{template: template, fetcher: TTDBRubberFetcher{}}
+	return &RubberController{template: template, fetcher: NewTTDBRubberFetcher()}
 }
 
 func (a RubberController) IndexPage(w http.ResponseWriter, req *http.Request) {

@@ -8,12 +8,21 @@ import (
 	"strings"
 )
 
-type TTDBRubberFetcher struct{}
+type TTDBRubberFetcher struct {
+	newDocument func(url string) (*goquery.Document, error)
+}
 
-const NUM_WORKERS = 30
+const MAX_NUM_WORKERS = 30
 
+func NewTTDBRubberFetcher() *TTDBRubberFetcher {
+	return &TTDBRubberFetcher{newDocument: goquery.NewDocument}
+}
+
+// FetchRubbers fetches list of available rubbers from http://www.tabletennisdb.com/rubber
+// and then spawns several goroutine workers to concurrently fetch detailed information
+// about each rubber from its own page. E.g. http://www.tabletennisdb.com/rubber/andro-rasant.html
 func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
-	doc, err := goquery.NewDocument("http://www.tabletennisdb.com/rubber")
+	doc, err := service.newDocument("http://www.tabletennisdb.com/rubber")
 	if err != nil {
 		return nil, err
 	}
@@ -28,16 +37,21 @@ func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
 		})
 	})
 
-	// TODO: Implement asynchronous fetch from ttdb. Put sleep/reduce amount of workers as ttdb returns 503.
-	rubberUrls = rubberUrls[1000:]
+	// TODO: Put sleep/reduce amount of workers as ttdb returns 503.
+	numWorkers := MAX_NUM_WORKERS
+	numFoundRubbers := len(rubberUrls)
+	log.Printf("Found %d rubbers", numFoundRubbers)
+	if numWorkers > numFoundRubbers {
+		numWorkers = numFoundRubbers
+	}
 	var waitGroup sync.WaitGroup
-	waitGroup.Add(NUM_WORKERS)
+	waitGroup.Add(numWorkers)
 	rubberChannel := make(chan *Rubber)
 	urlChannel := make(chan string)
 	var url string
-	for worker := 0; worker < NUM_WORKERS; worker++ {
+	for worker := 0; worker < numWorkers; worker++ {
 		go func() {
-			fetchRubbers(urlChannel, rubberChannel)
+			service.fetchRubbersWorker(urlChannel, rubberChannel)
 			waitGroup.Done()
 		}()
 		url, rubberUrls = rubberUrls[0], rubberUrls[1:]
@@ -51,12 +65,16 @@ func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
 		close(rubberChannel)
 	}()
 
+	var finished bool = false
 	for rubber := range rubberChannel {
 		rubbers = append(rubbers, rubber)
-		if len(rubberUrls) > 0 {
-			url, rubberUrls = rubberUrls[0], rubberUrls[1:]
-			urlChannel <- url
+		if !finished {
+			if len(rubberUrls) > 0 {
+				url, rubberUrls = rubberUrls[0], rubberUrls[1:]
+				urlChannel <- url
+			}
 			if len(rubberUrls) == 0 {
+				finished = true
 				log.Println("No more rubbers left. Closing rubber URL channel...")
 				close(urlChannel)
 			}
@@ -66,15 +84,17 @@ func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
 	return rubbers, nil
 }
 
-func fetchRubbers(urlChannel <-chan string, rubberChannel chan<- *Rubber) {
+// fetchRubbersWorker fetches detailed information about rubber while there are URLs in urlChannel
+func (service TTDBRubberFetcher) fetchRubbersWorker(urlChannel <-chan string, rubberChannel chan<- *Rubber) {
 	for url := range urlChannel {
 		log.Println("Fetching rubber from " + url)
-		fetchRubber(url, rubberChannel)
+		service.fetchRubberFromSingleURL(url, rubberChannel)
 	}
 }
 
-func fetchRubber(url string, rubberChannel chan<- *Rubber) {
-	doc, err := goquery.NewDocument("http://www.tabletennisdb.com/" + url)
+// fetchRubberFromSingleURL fetches detailed information about rubber, parses it and sends Rubber instance to rubberChannel
+func (service TTDBRubberFetcher) fetchRubberFromSingleURL(url string, rubberChannel chan<- *Rubber) {
+	doc, err := service.newDocument("http://www.tabletennisdb.com/" + url)
 	if err != nil {
 		log.Fatal(err)
 	}

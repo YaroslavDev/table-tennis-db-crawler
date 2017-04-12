@@ -1,5 +1,5 @@
-hash: 5f67bbeae3af76e3b3ac7fedc2c517319b05ab81a093e22f393f06c9e383b59d
-updated: 2017-04-06T21:37:29.593543698+03:00
+hash: d3bb6d0d1a7aa72cc5594b13998fed1c7d0e755c30f7d00843d78c8a65cd1964
+updated: 2017-04-12T21:42:21.269502247+03:00
 imports:
 - name: github.com/andybalholm/cascadia
   version: 349dd0209470eabd9514242c688c403c0926d266
@@ -10,4 +10,6 @@ imports:
   subpackages:
   - html
   - html/atom
+- name: gopkg.in/check.v1
+  version: 20d25e2804050c1cd24a7eea1e7a6447dd0e74ec
 testImports: []
