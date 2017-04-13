@@ -16,7 +16,7 @@ func TestIndexPage(t *testing.T) {
 	rubberController := NewRubberController(template.Must(template.ParseGlob("../templates/*.html")))
 	rubberController.fetcher = FetcherStub{}
 
-	rubberController.IndexPage(responseWriter, request)
+	rubberController.RubbersPage(responseWriter, request)
 
 	response := responseWriter.Result()
 	expectedStatusCode := 200

@@ -1,0 +1,39 @@
+<html>
+<head>
+    <title>Available rubbers</title>
+</head>
+
+<h1>Rubbers</h1>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Speed</th>
+        <th>Spin</th>
+        <th>Control</th>
+        <th>Tackiness</th>
+        <th>Weight</th>
+        <th>SpongeHardness</th>
+        <th>Gears</th>
+        <th>ThrowAngle</th>
+        <th>Consistency</th>
+        <th>Durability</th>
+    </tr>
+    {{range .}}
+    <tr>
+        <td>{{.Name}}</td>
+        <td>{{.Speed}}</td>
+        <td>{{.Spin}}</td>
+        <td>{{.Control}}</td>
+        <td>{{.Tackiness}}</td>
+        <td>{{.Weight}}</td>
+        <td>{{.SpongeHardness}}</td>
+        <td>{{.Gears}}</td>
+        <td>{{.ThrowAngle}}</td>
+        <td>{{.Consistency}}</td>
+        <td>{{.Durability}}</td>
+    </tr>
+    {{end}}
+
+</table>
+
+</html>
