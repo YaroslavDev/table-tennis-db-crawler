@@ -8,20 +8,20 @@ import (
 	"strings"
 )
 
-type TTDBRubberFetcher struct {
+type ttDBRubberFetcher struct {
 	newDocument func(url string) (*goquery.Document, error)
 }
 
 const MAX_NUM_WORKERS = 30
 
-func NewTTDBRubberFetcher() *TTDBRubberFetcher {
-	return &TTDBRubberFetcher{newDocument: goquery.NewDocument}
+func NewTTDBRubberFetcher() *ttDBRubberFetcher {
+	return &ttDBRubberFetcher{newDocument: goquery.NewDocument}
 }
 
 // FetchRubbers fetches list of available rubbers from http://www.tabletennisdb.com/rubber
 // and then spawns several goroutine workers to concurrently fetch detailed information
 // about each rubber from its own page. E.g. http://www.tabletennisdb.com/rubber/andro-rasant.html
-func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
+func (service ttDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
 	doc, err := service.newDocument("http://www.tabletennisdb.com/rubber")
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (service TTDBRubberFetcher) FetchRubbers() ([]*Rubber, error) {
 }
 
 // fetchRubbersWorker fetches detailed information about rubber while there are URLs in urlChannel
-func (service TTDBRubberFetcher) fetchRubbersWorker(urlChannel <-chan string, rubberChannel chan<- *Rubber) {
+func (service ttDBRubberFetcher) fetchRubbersWorker(urlChannel <-chan string, rubberChannel chan<- *Rubber) {
 	for url := range urlChannel {
 		log.Println("Fetching rubber from " + url)
 		service.fetchRubberFromSingleURL(url, rubberChannel)
@@ -93,7 +93,7 @@ func (service TTDBRubberFetcher) fetchRubbersWorker(urlChannel <-chan string, ru
 }
 
 // fetchRubberFromSingleURL fetches detailed information about rubber, parses it and sends Rubber instance to rubberChannel
-func (service TTDBRubberFetcher) fetchRubberFromSingleURL(url string, rubberChannel chan<- *Rubber) {
+func (service ttDBRubberFetcher) fetchRubberFromSingleURL(url string, rubberChannel chan<- *Rubber) {
 	doc, err := service.newDocument("http://www.tabletennisdb.com/" + url)
 	if err != nil {
 		log.Fatal(err)
