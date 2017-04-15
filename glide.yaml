@@ -13,3 +13,6 @@ import:
   subpackages:
   - html
 - package: github.com/antchfx/xpath
+- package: golang.org/x/text
+  subpackages:
+  - encoding
