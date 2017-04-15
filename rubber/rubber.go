@@ -1,15 +1,15 @@
 package rubber
 
 type Rubber struct {
-	Name		string
-	Speed 		float32
-	Spin 		float32
-	Control 	float32
-	Tackiness	float32
-	Weight		float32
-	SpongeHardness	float32
-	Gears		float32
-	ThrowAngle	float32
-	Consistency	float32
-	Durability	float32
+	Name		string	`db:"name"`
+	Speed 		float32	`db:"speed"`
+	Spin 		float32	`db:"spin"`
+	Control 	float32	`db:"control"`
+	Tackiness	float32	`db:"tackiness"`
+	Weight		float32	`db:"weight"`
+	SpongeHardness	float32	`db:"sponge_hardness"`
+	Gears		float32	`db:"gears"`
+	ThrowAngle	float32	`db:"throw_angle"`
+	Consistency	float32	`db:"consistency"`
+	Durability	float32	`db:"durability"`
 }

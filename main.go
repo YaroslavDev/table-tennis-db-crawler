@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	rubberController := rubber.NewRubberController(config.TPL)
+	rubberController := rubber.NewRubberController(config.TPL, &config.ConnectionUrl)
 	http.HandleFunc("/favicon.ico", http.NotFound)
 	http.HandleFunc("/", landingPage)
 	http.HandleFunc("/rubber", rubberController.RubbersPage)

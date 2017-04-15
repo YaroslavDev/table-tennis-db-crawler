@@ -40,10 +40,10 @@ func (s *MySuite) TestFetchRubbersFromDocument(c *check.C) {
 		{Name: "Donic Acuda P2", 	Speed: 9.1, Spin: 9.7, Control: 9.2, Tackiness: 3.2, Weight: 3.9, SpongeHardness: 4.0, Gears: 8.4, ThrowAngle: 4.4, Consistency: 9.5, Durability: 7.4},
 		{Name: "Butterfly Tenergy 05", 	Speed: 9.3, Spin: 9.4, Control: 8.4, Tackiness: 2.3, Weight: 6.8, SpongeHardness: 6.2, Gears: 8.9, ThrowAngle: 7.4, Consistency: 9.4, Durability: 8.1},
 	}
-	fetcher := NewTTDBRubberFetcher()
-	fetcher.newDocument = testNewDocument
+	finder := NewTTDBRubberFinder()
+	finder.newDocument = testNewDocument
 
-	actualRubbers, err := fetcher.FetchRubbers()
+	actualRubbers, err := finder.FindRubbers()
 
 	if err != nil {
 		c.Error(err)
