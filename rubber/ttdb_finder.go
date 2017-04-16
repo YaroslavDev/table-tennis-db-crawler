@@ -22,6 +22,49 @@ func NewTTDBRubberFinder() *ttDBRubberFinder {
 // and then spawns several goroutine workers to concurrently find detailed information
 // about each rubber from its own page. E.g. http://www.tabletennisdb.com/rubber/andro-rasant.html
 func (service ttDBRubberFinder) FindRubbers() ([]*Rubber, error) {
+	rubberUrls, err := service.findRubberUrls()
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Put sleep/reduce amount of workers as ttdb returns 503.
+	// create channel with work
+	numFoundRubbers := len(rubberUrls)
+	log.Printf("Found %d rubbers", numFoundRubbers)
+	urlChannel := make(chan string, numFoundRubbers)
+	for _, rubberUrl := range rubberUrls {
+		urlChannel <- rubberUrl
+	}
+	close(urlChannel)
+
+	// spawn workers
+	numWorkers := MAX_NUM_WORKERS
+	if numWorkers > numFoundRubbers {
+		numWorkers = numFoundRubbers
+	}
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(numWorkers)
+	rubberChannel := make(chan *Rubber, numFoundRubbers)
+	for worker := 0; worker < numWorkers; worker++ {
+		go service.findRubbersWorker(urlChannel, rubberChannel, &waitGroup)
+	}
+
+	go func() {
+		waitGroup.Wait()
+		log.Println("Found all rubbers. Closing rubber channel...")
+		close(rubberChannel)
+	}()
+
+	rubbers := make([]*Rubber, 0, 2000)
+	for rubber := range rubberChannel {
+		rubbers = append(rubbers, rubber)
+	}
+
+	return rubbers, nil
+}
+
+// findRubberUrls finds all urls to rubber details pages
+func (service ttDBRubberFinder) findRubberUrls() ([]string, error) {
 	doc, err := service.newDocument("http://www.tabletennisdb.com/rubber")
 	if err != nil {
 		return nil, err
@@ -37,48 +80,7 @@ func (service ttDBRubberFinder) FindRubbers() ([]*Rubber, error) {
 		})
 	})
 
-	// TODO: Put sleep/reduce amount of workers as ttdb returns 503.
-	numWorkers := MAX_NUM_WORKERS
-	numFoundRubbers := len(rubberUrls)
-	log.Printf("Found %d rubbers", numFoundRubbers)
-	if numWorkers > numFoundRubbers {
-		numWorkers = numFoundRubbers
-	}
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(numWorkers)
-	rubberChannel := make(chan *Rubber, numFoundRubbers)
-	urlChannel := make(chan string, numFoundRubbers)
-	var url string
-	for worker := 0; worker < numWorkers; worker++ {
-		go service.findRubbersWorker(urlChannel, rubberChannel, &waitGroup)
-		url, rubberUrls = rubberUrls[0], rubberUrls[1:]
-		urlChannel <- url
-	}
-
-	rubbers := make([]*Rubber, 0, 2000)
-	go func() {
-		waitGroup.Wait()
-		log.Println("Found all rubbers. Closing rubber channel...")
-		close(rubberChannel)
-	}()
-
-	var finished bool = false
-	for rubber := range rubberChannel {
-		rubbers = append(rubbers, rubber)
-		if !finished {
-			if len(rubberUrls) > 0 {
-				url, rubberUrls = rubberUrls[0], rubberUrls[1:]
-				urlChannel <- url
-			}
-			if len(rubberUrls) == 0 {
-				finished = true
-				log.Println("No more rubbers left. Closing rubber URL channel...")
-				close(urlChannel)
-			}
-		}
-	}
-
-	return rubbers, nil
+	return rubberUrls, nil
 }
 
 // findRubbersWorker finds detailed information about rubber while there are URLs in urlChannel
