@@ -46,14 +46,11 @@ func (service ttDBRubberFinder) FindRubbers() ([]*Rubber, error) {
 	}
 	var waitGroup sync.WaitGroup
 	waitGroup.Add(numWorkers)
-	rubberChannel := make(chan *Rubber)
-	urlChannel := make(chan string)
+	rubberChannel := make(chan *Rubber, numFoundRubbers)
+	urlChannel := make(chan string, numFoundRubbers)
 	var url string
 	for worker := 0; worker < numWorkers; worker++ {
-		go func() {
-			service.findRubbersWorker(urlChannel, rubberChannel)
-			waitGroup.Done()
-		}()
+		go service.findRubbersWorker(urlChannel, rubberChannel, &waitGroup)
 		url, rubberUrls = rubberUrls[0], rubberUrls[1:]
 		urlChannel <- url
 	}
@@ -85,7 +82,8 @@ func (service ttDBRubberFinder) FindRubbers() ([]*Rubber, error) {
 }
 
 // findRubbersWorker finds detailed information about rubber while there are URLs in urlChannel
-func (service ttDBRubberFinder) findRubbersWorker(urlChannel <-chan string, rubberChannel chan<- *Rubber) {
+func (service ttDBRubberFinder) findRubbersWorker(urlChannel <-chan string, rubberChannel chan<- *Rubber, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for url := range urlChannel {
 		log.Println("Finding rubbers at " + url)
 		service.findRubberFromSingleURL(url, rubberChannel)
