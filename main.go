@@ -7,7 +7,7 @@ import (
 	"github.com/YaroslavDev/table-tennis-db-crawler/config"
 )
 
-func main() {
+func routes() {
 	rubberController := rubber.NewRubberController(config.TPL, &config.ConnectionUrl)
 	http.HandleFunc("/favicon.ico", http.NotFound)
 	http.HandleFunc("/", landingPage)
@@ -15,6 +15,10 @@ func main() {
 	http.HandleFunc("/rubber-sync", rubberController.SynchronizeRubbers)
 	http.HandleFunc("/blades", bladesPage)
 	http.HandleFunc("/blades-sync", bladesSync)
+}
+
+func main() {
+	routes()
 	log.Println("Table tennis DB crawler started...")
 	http.ListenAndServe(":8080", nil)
 }
